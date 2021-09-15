@@ -1,0 +1,68 @@
+FROM php:7.3-fpm
+
+RUN apt-get update \
+    && apt-get install -y \
+    pkg-config \
+    libmemcached-dev \
+    autoconf \
+    gcc \
+    make \
+    zlib1g \
+    zlib1g-dev \
+    libfreetype6-dev \
+    libjpeg62-turbo-dev \
+    libmcrypt-dev \
+    libpng-dev \
+    libboost-all-dev \
+    zip \
+    unzip \
+    git \
+    vim \
+    cmake \
+# libzip
+    && curl -O https://libzip.org/download/libzip-1.5.1.tar.gz \
+    && tar -xzf libzip-1.5.1.tar.gz \
+    && cd libzip-1.5.1 \
+    && mkdir build \
+    && cd build \
+    && cmake .. \
+    && make && make install \
+    && cd / \
+# /usr/srcl php
+    && docker-php-source extract \
+# memcahched
+    && pecl install memcached \
+# redis
+    && curl -L -o /tmp/redis.tar.gz https://codeload.github.com/phpredis/phpredis/tar.gz/5.0.2 \
+    && tar -xzf /tmp/redis.tar.gz \
+    && mv phpredis-5.0.2 /usr/src/php/ext/phpredis \
+# MongoDB
+    && curl -L -o /tmp/mongodb-1.6.0.tgz https://pecl.php.net/get/mongodb-1.6.0.tgz \
+    && tar -ixzf /tmp/mongodb-1.6.0.tgz \
+    && mv mongodb-1.6.0 /usr/src/php/ext/mongodb \
+# swoole
+    && curl -L -o /tmp/swoole-4.7.0.tgz https://pecl.php.net/get/swoole-4.7.0.tgz \
+    && tar -ixzf /tmp/swoole-4.7.0.tgz \
+    && mv swoole-4.7.0 /usr/src/php/ext/swoole \
+# yasd
+    && git clone https://github.com/swoole/yasd.git \
+    && mv yasd /usr/src/php/ext/yasd \
+#php
+    && docker-php-ext-install pdo_mysql \
+        mysqli\
+        phpredis \
+        mongodb \
+        swoole \
+        yasd \
+        zip\
+# composer
+    && curl -sS https://getcomposer.org/installer | php \
+    && mv composer.phar usr/bin/composer && chmod +x /usr/bin/composer \
+# delete /usr/src/php/ext
+    && docker-php-source delete \
+    && rm -rf tmp/* \
+
+# supervisor
+    && sh -c '/bin/echo -e "y" | pt-get install supervisor' \
+    && echo_supervisord_conf > /etc/supervisord.conf \
+    && mkdir /etc/supervisord_conf \

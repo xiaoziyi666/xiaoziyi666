@@ -1,0 +1,6 @@
+2021/09/02 02:32:10 [emerg] 1#1: host not found in upstream "php-fpm" in /etc/nginx/conf.d/default.conf:53
+2021/09/02 02:32:11 [emerg] 1#1: host not found in upstream "php-fpm" in /etc/nginx/conf.d/default.conf:53
+2021/09/02 02:32:11 [emerg] 1#1: host not found in upstream "php-fpm" in /etc/nginx/conf.d/default.conf:53
+2021/09/02 02:32:12 [emerg] 1#1: host not found in upstream "php-fpm" in /etc/nginx/conf.d/default.conf:53
+2021/09/02 02:32:13 [emerg] 1#1: host not found in upstream "php-fpm" in /etc/nginx/conf.d/default.conf:53
+2021/09/02 02:32:15 [emerg] 1#1: host not found in upstream "php-fpm" in /etc/nginx/conf.d/default.conf:53

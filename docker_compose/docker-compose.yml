@@ -1,0 +1,75 @@
+version: '3.1'
+services:
+  db:
+    container_name: dihe.api.mysql
+    image: mysql:5.7
+    #表示支持外部访问
+    command: --default-authentication-plugin=mysql_native_password
+    restart: always
+    volumes:
+      - db_data:/var/lib/mysql
+    #映射到宿主机的端口,测试使用,测试完毕,请注释
+    ports:
+      - 3306:3306
+
+    networks:
+      - lnmp
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      #初始化数据库
+      MYSQL_DATABASE: dhw
+  php-fpm:
+    #使用php 7.3-fpm镜像构建
+    #改用dockerfile安装扩展
+    #image: php:7.3-fpm
+    container_name: dihe.api.php
+    #dockerfile方式配置
+    build:
+      #上下文环境,从哪里开始构建
+      context: .
+      #yaml同级目录下的php7.3_fpm_dockerfile文件   docker_compose_php-fpm  docker tag docker_compose_php-fpm:latest  dhw/api/nginx-io:v1nginx:v1
+      dockerfile: php7.3_fpm_dockerfile
+
+    #设置依赖
+    depends_on:
+      - db
+    restart: always
+    ports:
+      - 9001:9001
+    #挂载卷
+    volumes:
+      #设置代码目录
+      - ./../api_server:/code
+    #配置网络
+    networks:
+      - lnmp
+
+  #ngnix配置
+  web:
+    container_name: dihe.api.nginx
+    #使用1.19.6镜像
+    image: nginx:1.19.6
+    #映射端口
+    ports:
+      - 9501:80
+    depends_on:
+      - php-fpm
+    restart: always
+    #设置网络
+    networks:
+      - lnmp
+
+    #设置挂载
+    volumes:
+      #主配置文件挂载
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      #其他配置目录挂载
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+      #日志目录挂载
+      - ./nginx/log:/var/log/nginx
+      #代码目录挂载
+      - ./../api_server:/code
+volumes:
+  db_data: {}
+networks:
+  lnmp:
